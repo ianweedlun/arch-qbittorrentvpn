@@ -198,6 +198,13 @@ while true; do
 
 		fi
 
+                if [[ "${VPN_PROV}" == "protonvpn" && -n "${VPN_INCOMING_PORT}" ]]; then
+
+                        echo "[debug] VPN incoming port is ${VPN_INCOMING_PORT}"
+                        echo "[debug] qBittorrent incoming port is ${qbittorrent_port}"
+
+                fi
+
 		echo "[debug] VPN IP is ${vpn_ip}"
 		echo "[debug] qBittorrent IP is ${qbittorrent_ip}"
 

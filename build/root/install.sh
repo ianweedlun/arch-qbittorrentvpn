@@ -34,7 +34,7 @@ pacman -S rsync --noconfirm
 source upd.sh
 
 # define pacman packages
-pacman_packages="qbittorrent-nox python geoip"
+pacman_packages="qbittorrent-nox python geoip libnatpmp"
 
 # install compiled packages using pacman
 if [[ ! -z "${pacman_packages}" ]]; then

@@ -78,5 +78,29 @@ if [[ "${VPN_PROV}" == "pia" && -n "${VPN_INCOMING_PORT}" ]]; then
 
 fi
 
+# change incoming port using the qbittorrent api - note this requires anonymous authentication via webui
+# option 'Bypass authentication for clients on localhost'
+if [[ "${VPN_PROV}" == "protonvpn" ]]; then
+
+
+        GATEWAY=$(grep -oP '(?<=DNS = ).*' /config/wireguard/wg0.conf)
+        VPN_INCOMING_PORT=$(natpmpc -g $GATEWAY -a 0 0 tcp 60 | grep -oP '(?<=port )\d+' | head -1)
+
+        # identify protocol, used by curl to connect to api
+        if grep -q 'WebUI\\HTTPS\\Enabled=true' '/config/qBittorrent/config/qBittorrent.conf'; then
+                web_protocol="https"
+        else
+                web_protocol="http"
+        fi
+
+        # note -k flag required to support insecure connection (self signed certs) when https used
+        curl -k -i -X POST -d "json={\"random_port\": false}" "${web_protocol}://localhost:${WEBUI_PORT}/api/v2/app/setPreferences" &> /dev/null
+        curl -k -i -X POST -d "json={\"listen_port\": ${VPN_INCOMING_PORT}}" "${web_protocol}://localhost:${WEBUI_PORT}/api/v2/app/setPreferences" &> /dev/null
+
+        # set qbittorrent port to current vpn port (used when checking for changes on next run)s
+        qbittorrent_port="${VPN_INCOMING_PORT}"
+
+fi
+
 # set qbittorrent ip to current vpn ip (used when checking for changes on next run)
 qbittorrent_ip="${vpn_ip}"
